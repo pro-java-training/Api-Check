@@ -1,7 +1,12 @@
 <!doctype html>
 <html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
-    <title>API 检测工具</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/bootstrap-select.min.css" rel="stylesheet">
+    <title>API 调试工具</title>
     <style>
         * {
             margin: 0;
@@ -14,12 +19,148 @@
     </style>
 </head>
 <body>
-<p>Hello, world!321</p>
-<script color="255,0,255" pointColor="255,0,0" opacity='0.7' zIndex="-2" count="100"
-        th:src="@{/js/canvas-nest.js}"></script>
+<div class="container-fluid">
+        <div class="alert alert-info" role="alert">
+            <h3>API 调试工具</h3>
+        </div>
+</div>
 
+<div class="container-fluid">
+    <nav class="navbar navbar-default">
+    <div class="row">
+
+        <div class="col-md-3">
+            <form class="form-horizontal">
+                <div class="form-group">
+                    <label for="interface-select" class="col-sm-3 control-label">接口</label>
+                    <div class="col-sm-7">
+                        <select class="selectpicker" id="interface-select">
+                            <option>v2</option>
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-md-3">
+            <form class="form-horizontal">
+                <div class="form-group">
+                    <label for="channel-select" class="col-sm-3 control-label">渠道</label>
+                    <div class="col-sm-7">
+                        <select class="selectpicker" data-live-search="true" id="channel-select">
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-md-3">
+            <form class="form-horizontal">
+                <div class="form-group">
+                    <label for="controller-select" class="col-sm-3 control-label">控制器</label>
+                    <div class="col-sm-7">
+                        <select class="selectpicker" data-live-search="true" id="controller-select">
+                            <option>file_file</option>
+                            <option>file_subject</option>
+                            <option>user</option>
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-md-3">
+            <form class="form-horizontal">
+                <div class="form-group">
+                    <label for="method-select" class="col-sm-3 control-label">方法</label>
+                    <div class="col-sm-7">
+                        <select class="selectpicker" data-live-search="true" id="method-select">
+                            <option>add</option>
+                            <option>del</option>
+                            <option>edit</option>
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    </nav>
+</div>
+
+<div class="container">
+    <!-- 请求参数 -->
+    <div class="row">
+
+    </div>
+
+    <!-- 返回参数 -->
+    <div class="row">
+
+    </div>
+    <!-- 返回数据 -->
+    <div class="row">
+
+    </div>
+</div>
+
+<div class="container">
+    <!-- Modal -->
+    <div class="modal fade" id="error-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">提示信息</h4>
+                </div>
+                <div class="modal-body" id="error-content">
+                    错误提示
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script color="255,0,255" pointColor="255,0,0" opacity='0.7' zIndex="-2" count="100" src="/js/canvas-nest.js"></script>
+<script src="/js/jquery-3.3.1.min.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+<script src="/js/bootstrap-select.min.js"></script>
 <script>
+    $(function () {
+        // 获取渠道列表
+        var channelSelect = $("#channel-select");
+        var controllerSelect;
+        var methodSelect;
 
+        // 错误提示框
+        var errorModel = $("#error-modal");
+        var errorContent = $("#error-content");
+
+
+        $.ajax({
+            type: "post",
+            url: "/getChannelList",
+            data:{
+                "apiUrl": "apiv2.sh.com"
+            },
+            success: function(data) {
+                data = JSON.parse(data);
+                if (data.code == 0) {
+                    $.each(data.data, function (key, value) {
+                        channelSelect.append("<option value='key'>" + value.name + "</option>");
+                    });
+                } else {
+                    errorContent.text(data.msg);
+                    errorModel.modal();
+                }
+            },
+            error: function (data) {
+
+            }
+        });
+    })
 </script>
 </body>
 </html>
