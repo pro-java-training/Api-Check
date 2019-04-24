@@ -12,6 +12,7 @@
             margin: 0;
             padding: 0;
         }
+
         html, body {
             height: 100%;
             width: 100%;
@@ -20,70 +21,67 @@
 </head>
 <body>
 <div class="container-fluid">
-        <div class="alert alert-info" role="alert">
-            <h3>API 调试工具</h3>
-        </div>
+    <div class="alert alert-info" role="alert">
+        <h3>API 调试工具  <small>v0.0.1-snapshot</small></h3>
+    </div>
 </div>
 
 <div class="container-fluid">
     <nav class="navbar navbar-default">
-    <div class="row">
+        <div class="row">
 
-        <div class="col-md-3">
-            <form class="form-horizontal">
-                <div class="form-group">
-                    <label for="interface-select" class="col-sm-3 control-label">接口</label>
-                    <div class="col-sm-7">
-                        <select class="selectpicker" id="interface-select">
-                            <option>v2</option>
-                        </select>
+            <div class="col-md-3">
+                <form class="form-horizontal">
+                    <div class="form-group">
+                        <label for="interface-select" class="col-sm-3 control-label">接口</label>
+                        <div class="col-sm-7">
+                            <select class="selectpicker" id="interface-select">
+                                <option>v2</option>
+                            </select>
+                        </div>
                     </div>
-                </div>
-            </form>
-        </div>
+                </form>
+            </div>
 
-        <div class="col-md-3">
-            <form class="form-horizontal">
-                <div class="form-group">
-                    <label for="channel-select" class="col-sm-3 control-label">渠道</label>
-                    <div class="col-sm-7">
-                        <select class="selectpicker" data-live-search="true" id="channel-select">
-                        </select>
+            <div class="col-md-3">
+                <form class="form-horizontal">
+                    <div class="form-group">
+                        <label for="channel-select" class="col-sm-3 control-label">渠道</label>
+                        <div class="col-sm-7">
+                            <select class="selectpicker" data-live-search="true" id="channel-select">
+                            </select>
+                        </div>
                     </div>
-                </div>
-            </form>
-        </div>
+                </form>
+            </div>
 
-        <div class="col-md-3">
-            <form class="form-horizontal">
-                <div class="form-group">
-                    <label for="controller-select" class="col-sm-3 control-label">控制器</label>
-                    <div class="col-sm-7">
-                        <select class="selectpicker" data-live-search="true" id="controller-select">
-                            <option>file_file</option>
-                            <option>file_subject</option>
-                            <option>user</option>
-                        </select>
+            <div class="col-md-3">
+                <form class="form-horizontal">
+                    <div class="form-group">
+                        <label for="controller-select" class="col-sm-3 control-label">控制器</label>
+                        <div class="col-sm-7">
+                            <select class="selectpicker" data-live-search="true" id="controller-select">
+                            </select>
+                        </div>
                     </div>
-                </div>
-            </form>
-        </div>
+                </form>
+            </div>
 
-        <div class="col-md-3">
-            <form class="form-horizontal">
-                <div class="form-group">
-                    <label for="method-select" class="col-sm-3 control-label">方法</label>
-                    <div class="col-sm-7">
-                        <select class="selectpicker" data-live-search="true" id="method-select">
-                            <option>add</option>
-                            <option>del</option>
-                            <option>edit</option>
-                        </select>
+            <div class="col-md-3">
+                <form class="form-horizontal">
+                    <div class="form-group">
+                        <label for="method-select" class="col-sm-3 control-label">方法</label>
+                        <div class="col-sm-7">
+                            <select class="selectpicker" data-live-search="true" id="method-select">
+                                <option>add</option>
+                                <option>del</option>
+                                <option>edit</option>
+                            </select>
+                        </div>
                     </div>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
-    </div>
     </nav>
 </div>
 
@@ -109,7 +107,8 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
                     <h4 class="modal-title" id="myModalLabel">提示信息</h4>
                 </div>
                 <div class="modal-body" id="error-content">
@@ -127,39 +126,119 @@
 <script src="/js/jquery-3.3.1.min.js"></script>
 <script src="/js/bootstrap.min.js"></script>
 <script src="/js/bootstrap-select.min.js"></script>
+<script src="/js/md5.min.js"></script>
+
 <script>
-    $(function () {
-        // 获取渠道列表
-        var channelSelect = $("#channel-select");
-        var controllerSelect;
-        var methodSelect;
+    // 封装提示框
+    var $dialogModel;
+    var $dialogContent;
+    var $channelSelect;
+    var $controllerSelect;
 
-        // 错误提示框
-        var errorModel = $("#error-modal");
-        var errorContent = $("#error-content");
+    function showDialog(msg) {
+        $dialogContent.text(msg);
+        $dialogModel.modal();
+    }
 
-
-        $.ajax({
-            type: "post",
-            url: "/getChannelList",
-            data:{
-                "apiUrl": "apiv2.sh.com"
-            },
-            success: function(data) {
+    /**
+     * @desc 封装ajax请求
+     * @param {string} url 请求地址
+     * @param {object} par 请求参数对象
+     * @param {function} callback 请求成功回调函数
+     * @param {boolean} cache 是否缓存
+     * @param {string} method 请求方式get/post
+     */
+    function getData(url, par, callback, cache, method) {
+        if (!arguments[3]) {
+            cache = true;
+        }
+        if (!arguments[4]) {
+            method = "get";
+        }
+        if (cache) {
+            var key = JSON.stringify(par);
+            // key = md5(key);
+            var data = localStorage.getItem(key);
+            if (data) {
                 data = JSON.parse(data);
-                if (data.code == 0) {
-                    $.each(data.data, function (key, value) {
-                        channelSelect.append("<option value='key'>" + value.name + "</option>");
-                    });
-                } else {
-                    errorContent.text(data.msg);
-                    errorModel.modal();
+                callback(data, par);
+                return;
+            }
+        }
+        $.ajax({
+            type: method,
+            url: url,
+            data: par,
+            success: function (data) {
+                data = JSON.parse(data);
+                if (data.code === 0) {
+                    localStorage.setItem(key, JSON.stringify(data.data));
                 }
+                callback(data.data, par);
             },
-            error: function (data) {
-
+            error: function (jqXHR) {
+                showDialog(jqXHR.statusText);
             }
         });
+    }
+
+    // 渲染渠道选择框
+    function renderChannel(data, par) {
+        $.each(data, function (key, value) {
+            $channelSelect.append("<option value=" + key + ">" + value.name + "</option>");
+        });
+    }
+
+    // 渲染控制器选择框
+    function renderController(data, par) {
+        $controllerSelect.empty();
+        var channel = par.channel;
+        $.each(data[channel]["purview"], function (key, value) {
+            $controllerSelect.append("<option value=" + key + ">" + key + "</option>");
+        });
+        // $('.selectpicker').selectpicker('render');
+        $('.selectpicker').selectpicker('refresh');
+    }
+
+    // 渲染方法选择框
+    function renderMethod(data, par) {
+        $controllerSelect.empty();
+        var channel = par.channel;
+        $.each(data[channel]["purview"], function (key, value) {
+            $controllerSelect.append("<option value=" + key + ">" + key + "</option>");
+        });
+    }
+
+</script>
+<script>
+    $channelSelect = $("#channel-select");
+    $(function () {
+        // 获取渠道列表
+
+        $controllerSelect = $("#controller-select");
+        var $methodSelect;
+
+        // 错误提示框
+        $dialogModel = $("#error-modal");
+        $dialogContent = $("#error-content");
+
+        var channelPar = {
+            "apiUrl": "apiv2.sh.com"
+        };
+        getData("/getChannelList", channelPar, renderChannel, true, "get");
+
+        $channelSelect.change(function () {
+            var channel = $channelSelect.val();
+            var controllerPar = {
+                "apiUrl": "apiv2.sh.com",
+                "channel": channel
+            };
+            getData("/getControllerList", controllerPar, renderController, true, "get");
+        });
+    })
+
+    $(window).on('load', () => {
+        $channelSelect.change()
     })
 </script>
 </body>

@@ -34,6 +34,12 @@ public class ApiCheckApplication {
         return modelAndView;
     }
 
+    @RequestMapping(value = "/store")
+    public ModelAndView store(ModelAndView modelAndView) {
+        modelAndView.setViewName("/store");
+        return modelAndView;
+    }
+
     @RequestMapping(value = "getChannelList")
     public String getChannelList(@RequestParam String apiUrl) {
         try {
