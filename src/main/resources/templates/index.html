@@ -1,23 +1,13 @@
 <!doctype html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <link href="/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/css/bootstrap-select.min.css" rel="stylesheet">
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/bootstrap-select.min.css}" rel="stylesheet">
+    <link th:href="@{/css/index.css}" rel="stylesheet">
     <title>API 调试工具</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-        }
-
-        html, body {
-            height: 100%;
-            width: 100%;
-        }
-    </style>
 </head>
 <body>
 <div class="container-fluid">
@@ -123,10 +113,10 @@
 </div>
 
 <script color="255,0,255" pointColor="255,0,0" opacity='0.7' zIndex="-2" count="100" src="/js/canvas-nest.js"></script>
-<script src="/js/jquery-3.3.1.min.js"></script>
-<script src="/js/bootstrap.min.js"></script>
-<script src="/js/bootstrap-select.min.js"></script>
-<script src="/js/md5.min.js"></script>
+<script th:src="@{/js/jquery-3.3.1.min.js}"></script>
+<script th:src="@{/js/bootstrap.min.js}"></script>
+<script th:src="@{/js/bootstrap-select.min.js}"></script>
+<script th:src="@{/js/md5.min.js}"></script>
 
 <script>
     // 封装提示框
@@ -157,8 +147,8 @@
         }
         if (cache) {
             var key = JSON.stringify(par);
-            // key = md5(key);
-            var data = localStorage.getItem(key);
+            key = md5(key);
+            var data = sessionStorage.getItem(key);
             if (data) {
                 data = JSON.parse(data);
                 callback(data, par);
@@ -172,7 +162,7 @@
             success: function (data) {
                 data = JSON.parse(data);
                 if (data.code === 0) {
-                    localStorage.setItem(key, JSON.stringify(data.data));
+                    sessionStorage.setItem(key, JSON.stringify(data.data));
                 }
                 callback(data.data, par);
             },
@@ -237,9 +227,9 @@
         });
     })
 
-    $(window).on('load', () => {
-        $channelSelect.change()
-    })
+    // $(window).on('load', () => {
+    //     $channelSelect.change()
+    // })
 </script>
 </body>
 </html>
